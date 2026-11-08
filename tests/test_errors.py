@@ -64,6 +64,7 @@ CASES = [
         1,
         "operands of '+' must both be numbers or both be strings, got string and number",
     ),
+    ("hallucinate(1 / 0)✨", "runtime", 1, "division by zero"),
 ]
 
 

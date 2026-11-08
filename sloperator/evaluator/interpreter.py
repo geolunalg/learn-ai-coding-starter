@@ -174,7 +174,7 @@ class Interpreter:
             case TokenType.STAR:
                 return left * right
             case TokenType.SLASH:
-                return left // right
+                return self.divide(left, right, operator)
             case TokenType.LESS:
                 return left < right
             case TokenType.LESS_EQUAL:
@@ -196,6 +196,12 @@ class Interpreter:
             f"operands of '{operator.lexeme}' must both be numbers or both be strings, "
             f"got {type_name(left)} and {type_name(right)}",
         )
+
+    def divide(self, left: int, right: int, operator: Token) -> int:
+        if right == 0:
+            raise SlopRuntimeError(operator.line, "division by zero")
+        quotient = abs(left) // abs(right)
+        return -quotient if (left < 0) != (right < 0) else quotient
 
     def call(self, function: Value, arguments: list[Value], paren: Token) -> Value:
         if isinstance(function, Builtin):
