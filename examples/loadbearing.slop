@@ -1,0 +1,7 @@
+loadbearing TAX = 3✨
+
+clanker with_tax(price) {
+    ship price + TAX✨
+}
+
+hallucinate(with_tax(39))✨

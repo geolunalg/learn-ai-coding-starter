@@ -209,3 +209,65 @@ hallucinate(n)✨"""
 def test_empty_program_produces_nothing():
     result = run_source("— nothing but a comment\n")
     assert (result.stdout, result.stderr, result.exit_code) == ("", "", 0)
+
+
+def test_loadbearing_reads_like_slop_but_cannot_be_assigned():
+    source = """loadbearing LIMIT = 10✨
+hallucinate(LIMIT)✨
+LIMIT = 11✨"""
+    result = run_source(source)
+    assert result.stdout == "10\n"
+    assert (
+        result.stderr == "SlopLang runtime error at line 3: cannot assign to loadbearing 'LIMIT'\n"
+    )
+
+
+def test_loadbearing_cannot_be_redeclared_in_the_same_scope():
+    source = """loadbearing x = 1✨
+slop x = 2✨"""
+    assert (
+        fails(source) == "SlopLang runtime error at line 2: 'x' is already declared in this scope"
+    )
+
+
+def test_inner_slop_shadows_an_outer_loadbearing():
+    source = """loadbearing x = 1✨
+{
+    slop x = 2✨
+    x = 3✨
+    hallucinate(x)✨
+}
+hallucinate(x)✨"""
+    assert run(source) == "3\n1\n"
+
+
+def test_assignment_from_an_inner_block_to_an_outer_loadbearing_fails():
+    source = """loadbearing x = 1✨
+{
+    x = 2✨
+}"""
+    assert fails(source) == "SlopLang runtime error at line 3: cannot assign to loadbearing 'x'"
+
+
+def test_loadbearing_inside_a_clanker_and_a_loop_body():
+    source = """clanker bump(n) {
+    loadbearing step = 2✨
+    ship n + step✨
+}
+slop i = 0✨
+ralph i < 3 {
+    loadbearing step = i✨
+    i = i + bump(0)✨
+}
+hallucinate(bump(40))✨
+hallucinate(i)✨"""
+    assert run(source) == "42\n4\n"
+
+
+def test_loadbearing_can_alias_a_clanker():
+    source = """clanker add(a, b) {
+    ship a + b✨
+}
+loadbearing plus = add✨
+hallucinate(plus(20, 22))✨"""
+    assert run(source) == "42\n"
