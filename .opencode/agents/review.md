@@ -1,6 +1,7 @@
 ---
 description: Reviews code for bugs, edge cases, tradeoffs, quality, performance, and security without making edits
 mode: primary
+steps: 2
 permissions:
   - action: "*"
     resource: "*"
