@@ -25,5 +25,10 @@
       "resource": "bootdev run *",
       "effect": "allow",
     },
+    {
+      "action": "subagent",
+      "resource": "explore",
+      "effect": "deny",
+    },
   ],
 }
