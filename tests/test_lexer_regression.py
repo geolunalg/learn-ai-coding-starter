@@ -19,6 +19,18 @@ def test_unexpected_character_is_a_lexical_error(char: str):
 
     assert info.value.line == 1
     assert info.value.message == f"unexpected character '{char}'"
-    assert str(info.value) == (
-        f"SlopLang lexical error at line 1: unexpected character '{char}'"
-    )
+    assert str(info.value) == (f"SlopLang lexical error at line 1: unexpected character '{char}'")
+
+
+def test_comment_does_not_swallow_the_next_line_number():
+    """Regression test for line counting after a comment.
+
+    The em-dash comment branch used to consume the terminating newline
+    without incrementing ``self.line``, so errors on the next line were
+    reported one line too early.
+    """
+    with pytest.raises(LexicalError) as info:
+        tokenize("— a comment\n@")
+
+    assert info.value.line == 2
+    assert str(info.value) == "SlopLang lexical error at line 2: unexpected character '@'"
